@@ -1,8 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "Alayacare Extension",
+  "name": "New Horizons Alayacare Extension",
   "version": "1.0",
-  "description": "adds additional functionality useful for NH",
+  "description": "adds additional functionality for NH workflows",
+
+  "icons": {
+    "48": "icons/nhpng48.png",
+    "128": "icons/nhpng128.png"
+  },
 
   "permissions": [
     "webRequest"

@@ -24,7 +24,6 @@
   "content_scripts": [
     {
       "js": [
-        "contentscripts/builder.js",
         "contentscripts/fetchextra.js"
       ],
       "matches": [

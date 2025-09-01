@@ -5,8 +5,7 @@
   "description": "adds additional functionality for NH workflows",
 
   "icons": {
-    "48": "icons/nhpng48.png",
-    "128": "icons/nhpng128.png"
+    "128": "icons/nha_icon128.png"
   },
 
   "permissions": [

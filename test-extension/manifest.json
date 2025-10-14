@@ -12,6 +12,13 @@
     "webRequest"
   ],
 
+  "web_accessible_resources": [
+    {
+      "resources": ["contentscripts/builder/builder.html"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+
   "host_permissions": [
     "*://*.alayacare.com/*"
   ],
@@ -23,7 +30,8 @@
   "content_scripts": [
     {
       "js": [
-        "contentscripts/fetchextra.js"
+        "contentscripts/fetchextra.js",
+        "contentscripts/builder/builder.js"
       ],
       "matches": [
         "https://nhcares.alayacare.com/*"

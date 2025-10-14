@@ -1,0 +1,114 @@
+<div id="custom-div" style="margin-left: 100px; float: left;">
+    <div id="time-inputs-form-div">
+        <form id="time-inputs-form" action="javascript:;">
+            <table>
+                <tr>
+                    <td valign="middle">
+                        <button type="submit" style="margin: 20px; padding: 10px; font-weight: bold; font-size: larger; border-radius: 5px;" id="submit-button">Search</button>
+                    </td>
+                    <td valign="middle">
+                        <label>Group: </label>
+                        <select name="group" id="group-select" style="padding: 5px;">
+                            <option value="1012">Albany</option>
+                            <option value="6584">Brookings</option>
+                            <option value="1003">Coos Bay</option>
+                            <option value="1004">Eugene</option>
+                            <option value="1008">Florence</option>
+                            <option value="3048">La Grande</option>
+                            <option value="1002">Lincoln City</option>
+                            <option value="10908">Longview</option>
+                            <option value="3047">PDX - East</option>
+                            <option value="10582">PDX - West</option>
+                            <option value="10067">Pendleton</option>
+                            <option value="6583">Redmond</option>
+                            <option value="1011">Roseburg</option>
+                            <option value="1005">Salem</option>
+                            <option value="6582">Vancouver</option>
+                            <option value="10068">Warrenton</option>
+                        </select>
+                    </td>
+                    <td valign="middle">
+                        <div style="margin-left: 20px;">
+                            <input type="radio" id="male-caregiver" name="caregiver-restriction" value="M">
+                            <label for="male-caregiver">Male Caregiver</label>
+                        </div>
+                        <div style="margin-left: 20px;">
+                            <input type="radio" id="female-caregiver" name="caregiver-restriction" value="F">
+                            <label for="female-caregiver">Female Caregiver</label>
+                        </div>
+                    </td>
+                    <td valign="middle">
+                        <div style="margin-left: 20px;">
+                            <input type="radio" id="male-clients" name="client-restriction" value="M">
+                            <label for="male-clients">Male Clients</label>
+                        </div>
+                        <div style="margin-left: 20px;">
+                            <input type="radio" id="female-clients" name="client-restriction" value="F">
+                            <label for="female-clients">Female Clients</label>
+                        </div>
+                    </td>
+                    <td valign="middle">
+                        <input type="checkbox" id="include-noc" name="include-noc" style="margin-left: 20px;">
+                        <label for="include-noc">Include NOC shifts?</label>
+                    </td>
+                    <td valign="middle">
+                        <button type="reset" style="margin: 20px; padding: 10px; border-radius: 5px;" id="reset-button">Reset all filters</button>
+                    </td>
+                </tr>
+            </table>
+
+            <div style="height: 30px;"></div>
+            
+            <table id="time-inputs-table" style="width: auto;">
+                <tr>
+                    <th></th>
+                    <th style="padding: 5px;">Sunday</th>
+                    <th style="padding: 5px;">Monday</th>
+                    <th style="padding: 5px;">Tuesday</th>
+                    <th style="padding: 5px;">Wednesday</th>
+                    <th style="padding: 5px;">Thursday</th>
+                    <th style="padding: 5px;">Friday</th>
+                    <th style="padding: 5px;">Saturday</th>
+                </tr>
+                <tr>
+                    <th style="padding: 5px;">Begin Time</th>
+                    <td style="padding: 5px;"><input type="time" name="sunday-begin-time"></td>
+                    <td style="padding: 5px;"><input type="time" name="monday-begin-time"></td>
+                    <td style="padding: 5px;"><input type="time" name="tuesday-begin-time"></td>
+                    <td style="padding: 5px;"><input type="time" name="wednesday-begin-time"></td>
+                    <td style="padding: 5px;"><input type="time" name="thursday-begin-time"></td>
+                    <td style="padding: 5px;"><input type="time" name="friday-begin-time"></td>
+                    <td style="padding: 5px;"><input type="time" name="saturday-begin-time"></td>
+                </tr>
+                <tr>
+                    <th style="padding: 5px;">End Time</th>
+                    <td style="padding: 5px;"><input type="time" name="sunday-end-time"></td>
+                    <td style="padding: 5px;"><input type="time" name="monday-end-time"></td>
+                    <td style="padding: 5px;"><input type="time" name="tuesday-end-time"></td>
+                    <td style="padding: 5px;"><input type="time" name="wednesday-end-time"></td>
+                    <td style="padding: 5px;"><input type="time" name="thursday-end-time"></td>
+                    <td style="padding: 5px;"><input type="time" name="friday-end-time"></td>
+                    <td style="padding: 5px;"><input type="time" name="saturday-end-time"></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <div style="height: 30px; "></div>
+    <table id="results-table" style="border: 4px solid gray; width: auto;">
+        <thead>
+            <tr>
+                <th style="border: 3px solid gray; text-align: center; padding: 10px; max-width: 40px;">Hours</th>
+                <th style="border: 3px solid gray; text-align: center; padding: 10px;">Client</th>
+                <th style="border: 3px solid gray; text-align: center; padding: 10px;">City</th>
+                <th style="border: 3px solid gray; text-align: center; padding: 10px;">Sunday</th>
+                <th style="border: 3px solid gray; text-align: center; padding: 10px;">Monday</th>
+                <th style="border: 3px solid gray; text-align: center; padding: 10px;">Tuesday</th>
+                <th style="border: 3px solid gray; text-align: center; padding: 10px;">Wednesday</th>
+                <th style="border: 3px solid gray; text-align: center; padding: 10px;">Thursday</th>
+                <th style="border: 3px solid gray; text-align: center; padding: 10px;">Friday</th>
+                <th style="border: 3px solid gray; text-align: center; padding: 10px;">Saturday</th>
+            </tr>
+        </thead>
+        <tbody id="results-table-body"></tbody>
+    </div>
+</div>

@@ -21,7 +21,7 @@ function initializeListener() {
         });
     };
 };
- 
- window.addEventListener("load", initializeListener);
 
- window.addEventListener("hashchange", initializeListener);
+window.addEventListener("load", initializeListener);
+
+window.addEventListener("hashchange", initializeListener);

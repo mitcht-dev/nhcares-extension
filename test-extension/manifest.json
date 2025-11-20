@@ -7,28 +7,32 @@
   "icons": {
     "128": "icons/nha_icon128.png"
   },
-
-  "permissions": [
-    "webRequest"
-  ],
-
-  "host_permissions": [
-    "*://*.alayacare.com/*"
-  ],
-
-  "background": {
-    "service_worker": "serviceworkers/service-worker.js"
-  },
   
   "content_scripts": [
     {
       "js": [
-        "contentscripts/fetchextra.js"
+        "contentscripts/schedule_visits.js",
+        "contentscripts/content.js",
+        "contentscripts/utils.js"
       ],
       "matches": [
-        "https://nhcares.alayacare.com/*"
+        "*://*.alayacare.com/*",
+        "*://*.alayacare.ca/*",
+        "*://localhost/*"
       ],
-      "run_at": "document_start"
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "js": [
+        "contentscripts/utils.js"
+      ],
+      "matches": [
+        "*://*.alayacare.com/*",
+        "*://*.alayacare.ca/*",
+        "*://localhost/*"
+      ],
+      "run_at": "document_idle"
     }
   ]
 }

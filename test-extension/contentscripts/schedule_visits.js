@@ -21,7 +21,7 @@ if (!window.vibeScheduledVisitsLoaded) {
           const clonedResponse = response.clone();
 
           clonedResponse.json().then(data => {
-            if (data && data.items && Array.isArray(data.items)) {
+            if (data?.items && Array.isArray(data.items)) {
               visitData = {};
 
               data.items.forEach(visit => {
@@ -90,7 +90,7 @@ if (!window.vibeScheduledVisitsLoaded) {
 
     // Function to filter and format tags based on business logic
     function filterAndFormatTags(tags) {
-      if (!tags || tags.length === 0) {
+      if (!tags?.length) {
         return 'No CG Preference';
       }
 
@@ -128,7 +128,7 @@ if (!window.vibeScheduledVisitsLoaded) {
 
       allRows.forEach(r => {
         const visitLink = r.querySelector('a.visit_link');
-        if (visitLink && visitLink.textContent.trim() === String(visitId)) {
+        if (visitLink?.textContent.trim() === String(visitId)) {
           row = r;
         }
       });
@@ -146,7 +146,7 @@ if (!window.vibeScheduledVisitsLoaded) {
           const headers = theadRow.querySelectorAll('th[role="cell"]');
           headers.forEach((header, index) => {
             const title = header.querySelector('.p-column-title');
-            if (title && title.textContent.trim() === 'Tags') {
+            if (title?.textContent.trim() === 'Tags') {
               tagsCell = allCells[index];
             }
           });
@@ -174,7 +174,7 @@ if (!window.vibeScheduledVisitsLoaded) {
 
       allRows.forEach(r => {
         const visitLink = r.querySelector('a.visit_link');
-        if (visitLink && visitLink.textContent.trim() === String(visitId)) {
+        if (visitLink?.textContent.trim() === String(visitId)) {
           row = r;
         }
       });
@@ -193,7 +193,7 @@ if (!window.vibeScheduledVisitsLoaded) {
         row.appendChild(clientCityCell);
       }
 
-      clientCityCell.innerHTML = `<!----> ${city ? city : '<span>--</span>'}`;
+      clientCityCell.innerHTML = `<!----> ${city || '<span>--</span>'}`;
       clientCityCell.setAttribute('data-city-updated', 'true');
     }
 
@@ -202,7 +202,7 @@ if (!window.vibeScheduledVisitsLoaded) {
     const originalSend = XMLHttpRequest.prototype.send;
 
     function processVisitData(data) {
-      if (data && data.items && Array.isArray(data.items)) {
+      if (data?.items && Array.isArray(data.items)) {
         visitData = {};
 
         data.items.forEach(visit => {
@@ -239,7 +239,7 @@ if (!window.vibeScheduledVisitsLoaded) {
     };
 
     XMLHttpRequest.prototype.send = function () {
-      if (this._url && this._url.includes('/api/v1/scheduler/scheduled_visits')) {
+      if (this._url?.includes('/api/v1/scheduler/scheduled_visits')) {
         this.addEventListener('load', function () {
           if (this.status === 200) {
             try {
@@ -347,7 +347,7 @@ if (!window.vibeScheduledVisitsLoaded) {
       if (!table) return;
 
       const thead = table.querySelector('thead[role="rowgroup"].p-datatable-thead');
-      const theadRow = thead ? thead.querySelector('tr[role="row"]') : null;
+      const theadRow = thead?.querySelector('tr[role="row"]') || null;
       const tbody = table.querySelector('tbody[role="rowgroup"].p-datatable-tbody');
 
       if (!thead || !theadRow) return;
@@ -366,10 +366,10 @@ if (!window.vibeScheduledVisitsLoaded) {
 
         const visitStatusHeader = allHeaders.find(th => {
           const title = th.querySelector('.p-column-title');
-          return title && title.textContent.trim() === 'Visit Status';
+          return title?.textContent.trim() === 'Visit Status';
         });
 
-        if (visitStatusHeader && visitStatusHeader.nextSibling) {
+        if (visitStatusHeader?.nextSibling) {
           theadRow.insertBefore(tagsHeader, visitStatusHeader.nextSibling);
         } else {
           theadRow.appendChild(tagsHeader);
@@ -386,7 +386,7 @@ if (!window.vibeScheduledVisitsLoaded) {
         clientCityHeader.innerHTML = '<!----> <div class="p-column-header-content"><!----> <span class="p-column-title">Client City</span> <!----> <!----> <!----> <!----></div>';
 
         const tagsHeader = theadRow.querySelector('th[data-test="column-tags"]');
-        if (tagsHeader && tagsHeader.nextSibling) {
+        if (tagsHeader?.nextSibling) {
           theadRow.insertBefore(clientCityHeader, tagsHeader.nextSibling);
         } else {
           theadRow.appendChild(clientCityHeader);
@@ -400,12 +400,12 @@ if (!window.vibeScheduledVisitsLoaded) {
       rows.forEach(row => {
         // Get visit ID from the visit_link element
         const visitLink = row.querySelector('a.visit_link');
-        const visitId = visitLink ? visitLink.textContent.trim() : row.id;
+        const visitId = visitLink?.textContent.trim() || row.id;
 
         const visit = visitData[visitId];
 
         // Get tags from scheduled_visits data and filter them
-        const tagsText = (visit && visit.tags && visit.tags.length > 0)
+        const tagsText = (visit?.tags?.length > 0)
           ? filterAndFormatTags(visit.tags)
           : 'No CG Preference';
 
@@ -445,8 +445,8 @@ if (!window.vibeScheduledVisitsLoaded) {
         }
 
         // Update client city cell with data if available
-        const cityText = (visit && visit.client_city) ? visit.client_city : '';
-        clientCityCell.innerHTML = `<!----> ${cityText ? cityText : '<span>--</span>'}`;
+        const cityText = visit?.client_city || '<span>--</span>';
+        clientCityCell.innerHTML = `<!----> ${cityText}`;
       });
     }
 
@@ -457,7 +457,7 @@ if (!window.vibeScheduledVisitsLoaded) {
     function addCellsToRow(row) {
       // Get visit ID from the visit_link element
       const visitLink = row.querySelector('a.visit_link');
-      const visitId = visitLink ? visitLink.textContent.trim() : row.id;
+      const visitId = visitLink?.textContent.trim() || row.id;
 
       // If we don't have visit data yet, initialize it
       if (!visitData[visitId]) {
@@ -483,7 +483,7 @@ if (!window.vibeScheduledVisitsLoaded) {
       const visit = visitData[visitId];
 
       // Get tags from visitData and filter them
-      const tagsText = (visit && visit.clientTags && visit.clientTags.length > 0)
+      const tagsText = (visit?.clientTags?.length > 0)
         ? filterAndFormatTags(visit.clientTags)
         : 'No CG Preference';
 
@@ -517,8 +517,8 @@ if (!window.vibeScheduledVisitsLoaded) {
       }
 
       // Update client city cell content
-      const cityText = (visit && visit.client_city) ? visit.client_city : '';
-      clientCityCell.innerHTML = `<!----> ${cityText ? cityText : '<span>--</span>'}`;
+      const cityText = visit?.client_city || '<span>--</span>';
+      clientCityCell.innerHTML = `<!----> ${cityText}`;
     }
 
     // Function to observe table for new rows
@@ -529,9 +529,7 @@ if (!window.vibeScheduledVisitsLoaded) {
       const tbody = table.querySelector('tbody[role="rowgroup"].p-datatable-tbody');
       if (!tbody) return;
 
-      if (tableObserver) {
-        tableObserver.disconnect();
-      }
+      tableObserver?.disconnect();
 
       tableObserver = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
@@ -572,10 +570,8 @@ if (!window.vibeScheduledVisitsLoaded) {
           }
         }, 500);
       } else {
-        if (tableObserver) {
-          tableObserver.disconnect();
-          tableObserver = null;
-        }
+        tableObserver?.disconnect();
+        tableObserver = null;
       }
     }
 

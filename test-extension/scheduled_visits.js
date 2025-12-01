@@ -31,7 +31,6 @@ if (!window.ScheduledVisitsLoaded) {
             TH_CELL: 'th[role="cell"]',
             BODY: 'tbody[role="rowgroup"].p-datatable-tbody',
             ROW: 'tr[role="row"]',
-            TITLE: '.p-column-title',
             CELL: 'td[role="cell"]',
           },
           LEGACY: {
@@ -40,7 +39,6 @@ if (!window.ScheduledVisitsLoaded) {
             TH_CELL: 'th',
             BODY: 'tbody',
             ROW: 'tr',
-            TITLE: 'div.column-content-label',
             CELL: 'td',
           },
         };
@@ -87,10 +85,9 @@ if (!window.ScheduledVisitsLoaded) {
               th.classList.add(`datatable-column___${identifier}`)
               // Custom identifer
               th.classList.add(`custom-${identifier}`);
-              // Need to change from hardcoded value eventually
+              // Need to change from hardcoded value eventually but necessary for styling
               th.setAttribute('data-v-0352e0fe', '');
-              //th.style = 'width: 5em;';
-              th.style = 'width: 5px;';
+              th.style = 'width: 5%;';
 
               const div = document.createElement('div');
               div.classList.add('column-contents')
@@ -105,9 +102,8 @@ if (!window.ScheduledVisitsLoaded) {
               td.classList.add(`datatable-column___${identifier}`)
               // Custom identifer
               td.classList.add(`custom-${identifier}`);
-              // Need to change from hardcoded value eventually
+              // Need to change from hardcoded value eventually but necessary for styling
               td.setAttribute('data-v-0352e0fe', '');
-              //td.style = 'height: 40px; width: 5em; text-wrap: wrap;';
               td.style = 'height: 40px;';
 
               const span1 = document.createElement('span');

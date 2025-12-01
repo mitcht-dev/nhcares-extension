@@ -123,7 +123,6 @@ if (!window.ScheduledVisitsLoaded) {
         this.ENDPOINTS = {
           SCHEDULED_VISITS: '/api/v1/scheduler/scheduled_visits',
           GET_CLIENT_BY_ID: (clientId) => `/ext/api/v2/patients/clients/${clientId}`,
-          GET_EMPLOYEE_BY_ID: (employeeId) => `/ext/api/v2/employees/employees/${employeeId}`
         };
 
         this.init();

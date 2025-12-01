@@ -191,6 +191,9 @@ if (!window.ScheduledVisitsLoaded) {
 
       injectNetworking() {
         window.fetch = (...args) => {
+
+          if (!this.isScheduledVisitsPage()) return originalFetch.apply(window, args);
+          
           const url = args[0];
 
           if (typeof url === 'string' && url.includes(this.ENDPOINTS.SCHEDULED_VISITS)) {

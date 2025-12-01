@@ -25,8 +25,10 @@ const observer = new MutationObserver(() => {
   if (currentUrl !== lastUrl) {
     lastUrl = currentUrl;
 
-    if (window.vibeUtils && window.scheduledVisits) {
-      window.scheduledVisits.checkAndApply();
+    if (window.vibeUtils) {
+      if (window.scheduledVisits) {
+        window.scheduledVisits.checkAndApply();
+      }
     }
   }
 });
@@ -38,7 +40,7 @@ if (document.body) {
     subtree: true
   });
 } else {
-  document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('DOMContentLoaded', function() {
     observer.observe(document.body, {
       childList: true,
       subtree: true
@@ -47,20 +49,24 @@ if (document.body) {
 }
 
 // Listen for hash changes (common in SPAs)
-window.addEventListener('hashchange', function () {
-  if (window.vibeUtils && window.scheduledVisits) {
-    window.scheduledVisits.checkAndApply();
+window.addEventListener('hashchange', function() {
+  if (window.vibeUtils) {
+    if (window.scheduledVisits) {
+      window.scheduledVisits.checkAndApply();
+    }
   }
 });
 
 // Also check periodically (backup mechanism)
-setInterval(function () {
+setInterval(function() {
   const currentUrl = window.location.href;
   if (currentUrl !== lastUrl) {
     lastUrl = currentUrl;
 
-    if (window.vibeUtils && window.scheduledVisits) {
-      window.scheduledVisits.checkAndApply();
+    if (window.vibeUtils) {
+      if (window.scheduledVisits) {
+        window.scheduledVisits.checkAndApply();
+      }
     }
   }
 }, 1000);

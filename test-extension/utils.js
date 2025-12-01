@@ -39,7 +39,7 @@ function onUrlChange(callback) {
 
 // Export to window for use in other scripts
 window.vibeUtils = {
-  isAlayaCarePage: isAlayaCarePage,
-  onDomReady: onDomReady,
-  onUrlChange: onUrlChange
+  isAlayaCarePage,
+  onDomReady,
+  onUrlChange
 };

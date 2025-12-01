@@ -124,6 +124,7 @@ if (!window.ScheduledVisitsLoaded) {
           },
         };
 
+        // Logic for creating custom data columns
         this.CUSTOM_COLUMNS = {
           'Client Tags': {
             identifier: 'client-tags',
@@ -159,7 +160,6 @@ if (!window.ScheduledVisitsLoaded) {
               let content = client.demographics.city || '<span style="color:#ccc">--</span>';
 
               if (String(content).toLowerCase().includes('portland')) {
-                content = 'PDX' + ' ' + client.demographics.zip;
                 const cardinals = [' N ', ' NE ', ' E ', ' SE ', ' S ', ' SW ', ' W ', ' NW '];
                 for (const cardinal of cardinals) {
                   if (client.demographics.address.includes(cardinal)) {
@@ -350,14 +350,14 @@ if (!window.ScheduledVisitsLoaded) {
           if (ready) {
             const table = document.querySelector(this.activeSelectors.TABLE);
             if (table) {
-              this.injectHeaders();
+              this.insertHeaders();
               if (!this.tableObserver) this.initializeTableObserver(table);
             }
           }
         }, 2000);
       }
 
-      injectHeaders() {
+      insertHeaders() {
         const theadRow = document.querySelector(`${this.activeSelectors.TH_ROW} > ${this.activeSelectors.ROW}`);
         if (!theadRow) return;
 
@@ -382,7 +382,7 @@ if (!window.ScheduledVisitsLoaded) {
             if (m.addedNodes.length) shouldRender = true;
           });
           if (shouldRender) {
-            this.injectHeaders();
+            this.insertHeaders();
             this.updateAllRows();
           }
         });

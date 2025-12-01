@@ -21,9 +21,10 @@ if (!window.ScheduledVisitsLoaded) {
 
         // Filter State
         this.activeSelectors = null;
+        this.activeCustomElements = null;
 
         // DOM Table Element locators
-        this.SELECTORS = {
+        this.DYNAMIC_SELECTORS = {
           NEW: {
             TABLE: 'table[role="table"].p-datatable-table',
             TH_ROW: 'thead[role="rowgroup"].p-datatable-thead',
@@ -45,10 +46,81 @@ if (!window.ScheduledVisitsLoaded) {
         };
 
         this.STATIC_SELECTORS = {
-          TAGS_CLASS: 'custom-tags-column',
-          CITY_CLASS: 'custom-city-column',
           VISIT_LINK: '.visit_link',
           CLIENT_LINK: 'a[href*="/clients/"]',
+        };
+
+        this.CUSTOM_ELEMENTS = {
+          NEW: {
+            HEADER: (title, identifier) => {
+              const th = document.createElement('th');
+              th.setAttribute('role', 'cell');
+              // Custom identifer
+              th.classList.add(`custom-${identifier}`);
+              th.style = 'min-width: 5rem;';
+
+              const div = document.createElement('div');
+              div.classList.add('p-column-header-content')
+              th.appendChild(div);
+
+              const span = document.createElement('span');
+              span.classList.add('p-column-title')
+              span.textContent = title;
+              div.appendChild(span);
+
+              return th;
+            },
+            CELL: (text, identifier) => {
+              const td = document.createElement('td');
+              // Custom identifer
+              td.classList.add(`custom-${identifier}`);
+              td.setAttribute('role', 'cell');
+              td.style = 'min-width: 10rem;';
+              td.textContent = text;
+
+              return td;
+            },
+          },
+          LEGACY: {
+            HEADER: (title, identifier) => {
+              const th = document.createElement('th');
+              th.classList.add(`datatable-column___${identifier}`)
+              // Custom identifer
+              th.classList.add(`custom-${identifier}`);
+              // Need to change from hardcoded value eventually
+              th.setAttribute('data-v-0352e0fe', '');
+              //th.style = 'width: 5em;';
+              th.style = 'width: 5px;';
+
+              const div = document.createElement('div');
+              div.classList.add('column-contents')
+              div.style = 'position: relative;';
+              div.textContent = title;
+              th.appendChild(div);
+
+              return th;
+            },
+            CELL: (text, identifier) => {
+              const td = document.createElement('td');
+              td.classList.add(`datatable-column___${identifier}`)
+              // Custom identifer
+              td.classList.add(`custom-${identifier}`);
+              // Need to change from hardcoded value eventually
+              td.setAttribute('data-v-0352e0fe', '');
+              //td.style = 'height: 40px; width: 5em; text-wrap: wrap;';
+              td.style = 'height: 40px;';
+
+              const span1 = document.createElement('span');
+              td.appendChild(span1);
+
+              const span2 = document.createElement('span');
+              span2.classList.add('break-line')
+              span2.textContent = text;
+              span1.appendChild(span2);
+
+              return td;
+            },
+          },
         };
 
         this.ENDPOINTS = {
@@ -151,13 +223,7 @@ if (!window.ScheduledVisitsLoaded) {
           const visitId = visit.id || null;
           const clientId = visit.client.id || visit.client_id || null;
           
-          this.visitMap[visitId] = this.clientMap[clientId];
-
-          if (!this.clientMap[clientId]) {
-            this.fetchClientInfo(visitId, clientId);
-          } else {
-            this.updateRow(visitId);
-          }
+          this.fetchClientInfo(visitId, clientId);
         });
       }
 
@@ -193,19 +259,23 @@ if (!window.ScheduledVisitsLoaded) {
 
         const clientTags = clientInfo.tags_v2 || clientInfo.tags || [];
         const tagsText = this.filterAndFormatTags(clientTags);
+        const tagsIdentifier = 'client-tags';
         const cityText = clientInfo.demographics?.city || clientInfo.client_city || '<span style="color:#ccc">--</span>';
+        const cityIdentifier = 'client-city';
 
-        this.upsertCell(rowElement, this.STATIC_SELECTORS.TAGS_CLASS, tagsText);
-        this.upsertCell(rowElement, this.STATIC_SELECTORS.CITY_CLASS, cityText);
+        this.upsertCell(rowElement, tagsText, tagsIdentifier);
+        this.upsertCell(rowElement, cityText, cityIdentifier);
       }
 
       // Check if page is displaying New or Legacy table
       determineSelectors() {
-        if (document.querySelector(this.SELECTORS.NEW.TABLE)) {
-          this.activeSelectors = this.SELECTORS.NEW;
+        if (document.querySelector(this.DYNAMIC_SELECTORS.NEW.TABLE)) {
+          this.activeSelectors = this.DYNAMIC_SELECTORS.NEW;
+          this.activeCustomElements = this.CUSTOM_ELEMENTS.NEW;
           return true;
-        } else if (document.querySelector(this.SELECTORS.LEGACY.TABLE)) {
-          this.activeSelectors = this.SELECTORS.LEGACY;
+        } else if (document.querySelector(this.DYNAMIC_SELECTORS.LEGACY.TABLE)) {
+          this.activeSelectors = this.DYNAMIC_SELECTORS.LEGACY;
+          this.activeCustomElements = this.CUSTOM_ELEMENTS.LEGACY;
           return true;
         }
 
@@ -235,22 +305,15 @@ if (!window.ScheduledVisitsLoaded) {
         const theadRow = document.querySelector(`${this.activeSelectors.TH_ROW} > ${this.activeSelectors.ROW}`);
         if (!theadRow) return;
 
-        const createHeader = (text, cls) => {
-          const th = document.createElement('th');
-          th.setAttribute('role', 'custom-column-header');
-          th.classList.add(cls);
-          th.style.minWidth = '10rem';
-          th.innerHTML = `<div class="p-column-header-content"><span class="p-column-title">${text}</span></div>`;
-          return th;
-        }
-
-        if (!theadRow.querySelector(`.${this.STATIC_SELECTORS.TAGS_CLASS}`)) {
-          const tagsHeader = createHeader('Client Tags', this.STATIC_SELECTORS.TAGS_CLASS);
+        const tagsIdentifier = 'client-tags';
+        if (!theadRow.querySelector(`.custom-${tagsIdentifier}`)) {
+          const tagsHeader = this.activeCustomElements.HEADER('Client Tags', tagsIdentifier);
           theadRow.insertBefore(tagsHeader, theadRow.firstChild);
         }
         
-        if (!theadRow.querySelector(`.${this.STATIC_SELECTORS.CITY_CLASS}`)) {
-          const cityHeader = createHeader('Client City', this.STATIC_SELECTORS.CITY_CLASS);
+        const cityIdentifier = 'client-city';
+        if (!theadRow.querySelector(`.custom-${cityIdentifier}`)) {
+          const cityHeader = this.activeCustomElements.HEADER('Client City', cityIdentifier);
           theadRow.insertBefore(cityHeader, theadRow.firstChild);
         }
       }
@@ -281,13 +344,10 @@ if (!window.ScheduledVisitsLoaded) {
         });
       }
 
-      upsertCell(row, className, content) {
-        let cell = row.querySelector(`.${className}`);
+      upsertCell(row, content, identifier) {
+        let cell = row.querySelector(`.custom-${identifier}`);
         if (!cell) {
-            cell = document.createElement('td');
-            cell.className = className;
-            cell.setAttribute('role', 'cell');
-            cell.style.minWidth = '10rem';
+            cell = this.activeCustomElements.CELL(content, identifier);
             row.insertBefore(cell, row.firstChild);
         }
         // Use placeholder comment for Vue consistency

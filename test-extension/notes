@@ -1,9 +1,0 @@
-NEW:
-header:<th role="cell" style="min-width: 5rem;"><div class="p-column-header-content"><span class="p-column-title">${text}</span></div></th>
-
-cell: <td role="cell" style="min-width: 10rem;">${text}</td>
-
-LEGACY:
-header: <th data-test="column-${title}" class="datatable-column___${title}" style="width: 5%;"><div data-test="column-content-label" class="column-contents" style="position: relative;">${title}</div></th>
-
-cell: <td data-test="data-table-column-${title}" class="datatable-column___${title}" style="height: 40px;"><span><span class="break-line">${text}</span></span></td>

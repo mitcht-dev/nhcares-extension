@@ -24,6 +24,9 @@ if (!window.ScheduledVisitsLoaded) {
         this.activeSelectors = null;
         this.activeCustomElements = null;
 
+        // Vue dynamic value
+        this.dataV = null;
+
         // DOM Table Element locators
         this.DYNAMIC_SELECTORS = {
           NEW: {
@@ -49,14 +52,15 @@ if (!window.ScheduledVisitsLoaded) {
           CLIENT_LINK: 'a[href*="/clients/"]',
         };
 
+        // Method for creating elements based on table type
         this.CUSTOM_ELEMENTS = {
           NEW: {
             HEADER: (title, identifier) => {
               const th = document.createElement('th');
               th.setAttribute('role', 'cell');
               // Custom identifer
-              th.classList.add(`custom-${identifier}`);
-              th.style = 'min-width: 5rem;';
+              th.classList.add(`${identifier}`);
+              th.style.minWidth = '5rem';
 
               const div = document.createElement('div');
               div.classList.add('p-column-header-content')
@@ -72,9 +76,9 @@ if (!window.ScheduledVisitsLoaded) {
             CELL: (text, identifier) => {
               const td = document.createElement('td');
               // Custom identifer
-              td.classList.add(`custom-${identifier}`);
+              td.classList.add(`${identifier}`);
               td.setAttribute('role', 'cell');
-              td.style = 'min-width: 10rem;';
+              td.style.minWidth = '10rem';
               td.textContent = text;
 
               return td;
@@ -85,14 +89,14 @@ if (!window.ScheduledVisitsLoaded) {
               const th = document.createElement('th');
               th.classList.add(`datatable-column___${identifier}`)
               // Custom identifer
-              th.classList.add(`custom-${identifier}`);
+              th.classList.add(`${identifier}`);
               // Need to change from hardcoded value eventually but necessary for styling
-              th.setAttribute('data-v-0352e0fe', '');
-              th.style = 'width: 5%;';
+              th.setAttribute(this.dataV, '');
+              th.style.width = '5%';
 
               const div = document.createElement('div');
               div.classList.add('column-contents')
-              div.style = 'position: relative;';
+              div.style.position = 'relative';
               div.textContent = title;
               th.appendChild(div);
 
@@ -102,10 +106,10 @@ if (!window.ScheduledVisitsLoaded) {
               const td = document.createElement('td');
               td.classList.add(`datatable-column___${identifier}`)
               // Custom identifer
-              td.classList.add(`custom-${identifier}`);
+              td.classList.add(`${identifier}`);
               // Need to change from hardcoded value eventually but necessary for styling
-              td.setAttribute('data-v-0352e0fe', '');
-              td.style = 'height: 40px;';
+              td.setAttribute(this.dataV, '');
+              td.style.height = '40px';
 
               const span1 = document.createElement('span');
               td.appendChild(span1);
@@ -120,11 +124,61 @@ if (!window.ScheduledVisitsLoaded) {
           },
         };
 
+        this.CUSTOM_COLUMNS = {
+          'Client Tags': {
+            identifier: 'client-tags',
+            getContent: (client) => {
+              const tags = client.tags_v2 || client.tags;
+              if (!tags?.length) {
+                return 'No CG Preference';
+              }
+
+              const tagNames = tags.map(tag => tag.name || tag);
+
+              // Check for Female Caregiver and Male Caregiver
+              const allowsFemaleCaregiver = tagNames.some(name => name === 'Female Caregiver');
+              const allowsMaleCaregiver = tagNames.some(name => name === 'Male Caregiver');
+
+              // If both exist or neither exist, show "No CG Preference"
+              const caregiverPreference = allowsFemaleCaregiver === allowsMaleCaregiver
+                ? 'No CG Preference'
+                : (allowsFemaleCaregiver ? 'Female CG Only' : 'Male CG Only');
+
+              // Filter tags that start with "Vital"
+              const vitalTags = tagNames.filter(name => name.startsWith('Vital'));
+
+              // Combine caregiver preference with vital tags
+              const filteredTags = [caregiverPreference, ...vitalTags];
+
+              return filteredTags.join(', ');
+            },
+          },
+          'Client City': {
+            identifier: 'client-city',
+            getContent: (client) => {
+              let content = client.demographics.city || '<span style="color:#ccc">--</span>';
+
+              if (String(content).toLowerCase().includes('portland')) {
+                content = 'PDX' + ' ' + client.demographics.zip;
+                const cardinals = [' N ', ' NE ', ' E ', ' SE ', ' S ', ' SW ', ' W ', ' NW '];
+                for (const cardinal of cardinals) {
+                  if (client.demographics.address.includes(cardinal)) {
+                    content = cardinal + ' ' + content;
+                  }
+                }
+              }
+              
+              return content;
+            },
+          },
+        };
+
         this.ENDPOINTS = {
           SCHEDULED_VISITS: '/api/v1/scheduler/scheduled_visits',
           GET_CLIENT_BY_ID: (clientId) => `/ext/api/v2/patients/clients/${clientId}`,
         };
 
+        // Activate
         this.init();
       }
 
@@ -253,14 +307,12 @@ if (!window.ScheduledVisitsLoaded) {
 
         const clientInfo = this.visitMap[visitId];
 
-        const clientTags = clientInfo.tags_v2 || clientInfo.tags || [];
-        const tagsText = this.filterAndFormatTags(clientTags);
-        const tagsIdentifier = 'client-tags';
-        const cityText = clientInfo.demographics?.city || clientInfo.client_city || '<span style="color:#ccc">--</span>';
-        const cityIdentifier = 'client-city';
+        for (const columnName in this.CUSTOM_COLUMNS) {
+          const content = this.CUSTOM_COLUMNS[columnName].getContent(clientInfo);
+          const identifier = this.CUSTOM_COLUMNS[columnName].identifier;
 
-        this.upsertCell(rowElement, tagsText, tagsIdentifier);
-        this.upsertCell(rowElement, cityText, cityIdentifier);
+          this.upsertCell(rowElement, content, identifier);
+        }
       }
 
       // Check if page is displaying New or Legacy table
@@ -268,10 +320,18 @@ if (!window.ScheduledVisitsLoaded) {
         if (document.querySelector(this.DYNAMIC_SELECTORS.NEW.TABLE)) {
           this.activeSelectors = this.DYNAMIC_SELECTORS.NEW;
           this.activeCustomElements = this.CUSTOM_ELEMENTS.NEW;
+
           return true;
+
         } else if (document.querySelector(this.DYNAMIC_SELECTORS.LEGACY.TABLE)) {
           this.activeSelectors = this.DYNAMIC_SELECTORS.LEGACY;
           this.activeCustomElements = this.CUSTOM_ELEMENTS.LEGACY;
+
+          // Set Vue value
+          const table = document.querySelector(this.activeSelectors.TABLE);
+          const th = table.querySelector(this.activeSelectors.TH_CELL);
+          this.dataV = Array.from(th.attributes).find(attribute => attribute.name.startsWith('data-v-')).name;
+
           return true;
         }
 
@@ -301,16 +361,12 @@ if (!window.ScheduledVisitsLoaded) {
         const theadRow = document.querySelector(`${this.activeSelectors.TH_ROW} > ${this.activeSelectors.ROW}`);
         if (!theadRow) return;
 
-        const tagsIdentifier = 'client-tags';
-        if (!theadRow.querySelector(`.custom-${tagsIdentifier}`)) {
-          const tagsHeader = this.activeCustomElements.HEADER('Client Tags', tagsIdentifier);
-          theadRow.insertBefore(tagsHeader, theadRow.firstChild);
-        }
-        
-        const cityIdentifier = 'client-city';
-        if (!theadRow.querySelector(`.custom-${cityIdentifier}`)) {
-          const cityHeader = this.activeCustomElements.HEADER('Client City', cityIdentifier);
-          theadRow.insertBefore(cityHeader, theadRow.firstChild);
+        for (const columnName in this.CUSTOM_COLUMNS) {
+          const identifier = this.CUSTOM_COLUMNS[columnName].identifier;
+          if (!theadRow.querySelector(`.${identifier}`)) {
+            const header = this.activeCustomElements.HEADER(columnName, identifier);
+            theadRow.insertBefore(header, theadRow.firstChild);
+          }
         }
       }
 
@@ -341,43 +397,13 @@ if (!window.ScheduledVisitsLoaded) {
       }
 
       upsertCell(row, content, identifier) {
-        let cell = row.querySelector(`.custom-${identifier}`);
+        let cell = row.querySelector(`.${identifier}`);
         if (!cell) {
             cell = this.activeCustomElements.CELL(content, identifier);
             row.insertBefore(cell, row.firstChild);
         }
-        // Use placeholder comment for Vue consistency
-        const htmlContent = `${content}`;
-        if (cell.innerHTML !== htmlContent) {
-            cell.innerHTML = htmlContent;
-        }
       }
 
-      // Function to filter and format tags based on business logic
-      filterAndFormatTags(tags) {
-        if (!tags?.length) {
-          return 'No CG Preference';
-        }
-
-        const tagNames = tags.map(tag => tag.name || tag);
-
-        // Check for Female Caregiver and Male Caregiver
-        const hasFemaleCaregiver = tagNames.some(name => name === 'Female Caregiver');
-        const hasMaleCaregiver = tagNames.some(name => name === 'Male Caregiver');
-
-        // If both exist or neither exist, show "No CG Preference"
-        const caregiverPreference = hasFemaleCaregiver === hasMaleCaregiver
-          ? 'No CG Preference'
-          : (hasFemaleCaregiver ? 'Female CG Only' : 'Male CG Only');
-
-        // Filter tags that start with "Vital"
-        const vitalTags = tagNames.filter(name => name.startsWith('Vital'));
-
-        // Combine caregiver preference with vital tags
-        const filteredTags = [caregiverPreference, ...vitalTags];
-
-        return filteredTags.join(', ');
-      }
       // Function to check if URL is the scheduled visits page
       isScheduledVisitsPage() {
         return window.location.href.includes('scheduling/scheduled-visits');
@@ -385,6 +411,5 @@ if (!window.ScheduledVisitsLoaded) {
     }
 
     window.vibeScheduledVisits = new ScheduledVisitsViewManager();
-
-  })(); // End of IIFE
-} // End of if (!window.ScheduledVisitsLoaded)
+  })();
+}

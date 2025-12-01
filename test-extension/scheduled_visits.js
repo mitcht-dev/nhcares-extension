@@ -8,6 +8,7 @@ if (!window.ScheduledVisitsLoaded) {
   (function () {
     'use strict';
 
+    // Hoisted
     const originalFetch = window.fetch;
 
     class ScheduledVisitsViewManager {

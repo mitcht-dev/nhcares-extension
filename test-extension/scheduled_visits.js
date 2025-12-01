@@ -90,7 +90,7 @@ if (!window.ScheduledVisitsLoaded) {
               th.classList.add(`datatable-column___${identifier}`)
               // Custom identifer
               th.classList.add(`${identifier}`);
-              // Need to change from hardcoded value eventually but necessary for styling
+              // Vue value
               th.setAttribute(this.dataV, '');
               th.style.width = '5%';
 
@@ -107,7 +107,7 @@ if (!window.ScheduledVisitsLoaded) {
               td.classList.add(`datatable-column___${identifier}`)
               // Custom identifer
               td.classList.add(`${identifier}`);
-              // Need to change from hardcoded value eventually but necessary for styling
+              // Vue value
               td.setAttribute(this.dataV, '');
               td.style.height = '40px';
 

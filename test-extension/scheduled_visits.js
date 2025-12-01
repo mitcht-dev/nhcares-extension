@@ -23,6 +23,7 @@ if (!window.ScheduledVisitsLoaded) {
         // Filter State
         this.activeSelectors = null;
         this.activeCustomElements = null;
+        this.activeColumns = null;
 
         // Vue dynamic value
         this.dataV = null;
@@ -178,6 +179,44 @@ if (!window.ScheduledVisitsLoaded) {
           GET_CLIENT_BY_ID: (clientId) => `/ext/api/v2/patients/clients/${clientId}`,
         };
 
+        /** TESTING COLUMN OPTIONS */
+        this.COLUMNS = {
+          NEW: {
+            'Client City': true,
+            'Client Tags': true,
+            'Visit ID': true,
+            'Client': true,
+            'Client-Address-Icon': true,
+            'Service Instructions': false,
+            'Employee': false,
+            'Employee-Icon': false,
+            'Facility': false,
+            'Service Code': true,
+            'Start Date': true,
+            'Start Time': true,
+            'End Time': true,
+            'Duration': true,
+            'ERL Code': false,
+            'Approval Status': false,
+            'Visit Status': false,
+          },
+          LEGACY: {
+            'Client City': true,
+            'Client Tags': true,
+            'Visit ID': true,
+            'Client': true,
+            'Employee': false,
+            'Facility': false,
+            'Service Code': true,
+            'Start Date': true,
+            'Start Time': true,
+            'End Time': true,
+            'Duration': true,
+            'Approval Status': false,
+            'Visit Status': false,
+          },
+        };
+
         // Activate
         this.init();
       }
@@ -193,7 +232,7 @@ if (!window.ScheduledVisitsLoaded) {
         window.fetch = (...args) => {
 
           if (!this.isScheduledVisitsPage()) return originalFetch.apply(window, args);
-          
+
           const url = args[0];
 
           if (typeof url === 'string' && url.includes(this.ENDPOINTS.SCHEDULED_VISITS)) {
@@ -316,6 +355,14 @@ if (!window.ScheduledVisitsLoaded) {
 
           this.upsertCell(rowElement, content, identifier);
         }
+
+        // Hide disabled columns
+        const cells = Array.from(rowElement.querySelectorAll(this.activeSelectors.CELL));
+        Object.keys(this.activeColumns).forEach((columnName, index) => {
+          if (!this.activeColumns[columnName]) {
+            cells[index].style.display = 'none';
+          }
+        });
       }
 
       // Check if page is displaying New or Legacy table
@@ -323,12 +370,14 @@ if (!window.ScheduledVisitsLoaded) {
         if (document.querySelector(this.DYNAMIC_SELECTORS.NEW.TABLE)) {
           this.activeSelectors = this.DYNAMIC_SELECTORS.NEW;
           this.activeCustomElements = this.CUSTOM_ELEMENTS.NEW;
+          this.activeColumns = this.COLUMNS.NEW;
 
           return true;
 
         } else if (document.querySelector(this.DYNAMIC_SELECTORS.LEGACY.TABLE)) {
           this.activeSelectors = this.DYNAMIC_SELECTORS.LEGACY;
           this.activeCustomElements = this.CUSTOM_ELEMENTS.LEGACY;
+          this.activeColumns = this.COLUMNS.LEGACY;
 
           // Set Vue value
           const table = document.querySelector(this.activeSelectors.TABLE);
@@ -371,6 +420,14 @@ if (!window.ScheduledVisitsLoaded) {
             theadRow.insertBefore(header, theadRow.firstChild);
           }
         }
+        
+        // Hide disabled columns
+        const headers = Array.from(theadRow.querySelectorAll(this.activeSelectors.TH_CELL));
+        Object.keys(this.activeColumns).forEach((columnName, index) => {
+          if (!this.activeColumns[columnName]) {
+            headers[index].style.display = 'none';
+          }
+        });
       }
 
       initializeTableObserver(table) {

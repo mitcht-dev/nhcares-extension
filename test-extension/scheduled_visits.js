@@ -152,10 +152,31 @@ if (!window.ScheduledVisitsLoaded) {
               // Combine caregiver preference with vital tags
               const filteredTags = [caregiverPreference, ...vitalTags];
 
-              const container = document.createElement('span');
-              container.textContent = filteredTags.join(', ');
-              container.title = tagNames.join(', ');
+              const container = document.createElement('button');
+              container.classList.add('p-button');
+              container.style.overflow = 'visible';
+              container.style.position = 'static';
+              container.textContent = filteredTags;
 
+              const tooltip = document.createElement('span');
+              tooltip.style.display = 'none';
+              tooltip.style.position = 'absolute';
+              tooltip.style.backgroundColor = '#333';
+              tooltip.style.padding = '1em';
+              tooltip.style.zIndex = '1000';
+              tooltip.style.textAlign = 'left';
+              tooltip.style.cursor = 'text';
+              tooltip.textContent = tagNames.join(', ');
+
+              container.appendChild(tooltip);
+
+              container.addEventListener('mouseenter', () => {
+                tooltip.style.display = 'block';
+              });
+              container.addEventListener('mouseleave', () => {
+                tooltip.style.display = 'none';
+              });
+              
               return container;
             },
           },
@@ -184,10 +205,11 @@ if (!window.ScheduledVisitsLoaded) {
             getContent: (clientData) => {
               const CLI = clientData.careplan.diagnoses.find(diagnose => diagnose.name.toLowerCase().includes('client centered information'))?.description || 'Error';
 
-              const container = document.createElement('div');
-              container.style.fontSize = 'large';
-              container.style.textAlign = 'center';
-              container.textContent = '📋';
+              const container = document.createElement('button');
+              container.classList.add('p-button');
+              container.style.overflow = 'visible';
+              container.style.position = 'static';
+              container.textContent = 'Careplan';
 
               const tooltip = document.createElement('span');
               tooltip.style.display = 'none';
@@ -195,12 +217,18 @@ if (!window.ScheduledVisitsLoaded) {
               tooltip.style.backgroundColor = '#333';
               tooltip.style.padding = '1em';
               tooltip.style.zIndex = '1000';
+              tooltip.style.textAlign = 'left';
+              tooltip.style.cursor = 'text';
               tooltip.textContent = CLI;
 
               container.appendChild(tooltip);
 
-              container.addEventListener('mouseenter', () => tooltip.style.display = 'block');
-              container.addEventListener('mouseleave', () => tooltip.style.display = 'none');
+              container.addEventListener('mouseenter', () => {
+                tooltip.style.display = 'block';
+              });
+              container.addEventListener('mouseleave', () => {
+                tooltip.style.display = 'none';
+              });
               
               return container;
             },
@@ -210,8 +238,8 @@ if (!window.ScheduledVisitsLoaded) {
         this.ENDPOINTS = {
           SCHEDULED_VISITS: '/api/v1/scheduler/scheduled_visits',
           GET_CLIENT_BY_ID: (clientId) => `/ext/api/v2/patients/clients/${clientId}`,
-          GET_ACTIVE_CAREPLAN: (clientId) => `/ext/api/v2/clinical/client/${clientId}/careplans?status=active`,
-          GET_ACTIVE_CAREPLAN_DETAILS: (careplanId) => `/api/v1/clinical/careplan/${careplanId}`
+          Get_ACTIVE_CAREPLANS: (clientId) => `/ext/api/v2/clinical/client/${clientId}/careplans?status=active`,
+          GET_ACTIVE_CAREPLAN_DETAILS: (careplanId) => `/api/v1/clinical/careplan/${careplanId}`,
         };
 
         /** TESTING COLUMN OPTIONS */
@@ -222,7 +250,7 @@ if (!window.ScheduledVisitsLoaded) {
             'Client Tags': true,
             'Visit ID': true,
             'Client': true,
-            'Client-Address-Icon': true,
+            'Visit Address': true,
             'Service Instructions': false,
             'Employee': false,
             'Employee-Icon': false,
@@ -233,7 +261,7 @@ if (!window.ScheduledVisitsLoaded) {
             'End Time': true,
             'Duration': true,
             'ERL Code': false,
-            'Approval Status': false,
+            'Approval Status': true,
             'Visit Status': false,
           },
           LEGACY: {
@@ -249,7 +277,7 @@ if (!window.ScheduledVisitsLoaded) {
             'Start Time': true,
             'End Time': true,
             'Duration': true,
-            'Approval Status': false,
+            'Approval Status': true,
             'Visit Status': false,
           },
         };
@@ -374,7 +402,7 @@ if (!window.ScheduledVisitsLoaded) {
 
         // Fetch client's active careplan
         try {
-          const response = await originalFetch(this.ENDPOINTS.GET_ACTIVE_CAREPLAN(clientId));
+          const response = await originalFetch(this.ENDPOINTS.Get_ACTIVE_CAREPLANS(clientId));
 
           if (response.ok) {
             const careplans = await response.json();

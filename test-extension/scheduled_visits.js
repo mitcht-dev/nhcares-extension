@@ -175,8 +175,11 @@ if (!window.ScheduledVisitsLoaded) {
           'Client Careplan': {
             identifier: 'client-careplan',
             getContent: (clientData) => {
-              const CLI = clientData.careplan.diagnoses.find(diagnose => diagnose.name.toLowerCase() === 'client centered information')?.description || 'Error';
-              return CLI;
+              const CLI = clientData.careplan.diagnoses.find(diagnose => diagnose.name.toLowerCase().includes('client centered information'))?.description || 'Error';
+              const container = document.createElement('span');
+              container.title = CLI;
+              container.textContent = '📋';
+              return container;
             },
           },
         };

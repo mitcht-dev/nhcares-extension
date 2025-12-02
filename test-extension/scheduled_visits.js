@@ -74,13 +74,13 @@ if (!window.ScheduledVisitsLoaded) {
 
               return th;
             },
-            CELL: (text, identifier) => {
+            CELL: (child, identifier) => {
               const td = document.createElement('td');
               // Custom identifer
               td.classList.add(`${identifier}`);
               td.setAttribute('role', 'cell');
               td.style.minWidth = '10rem';
-              td.textContent = text;
+              td.appendChild(child);
 
               return td;
             },
@@ -103,7 +103,7 @@ if (!window.ScheduledVisitsLoaded) {
 
               return th;
             },
-            CELL: (text, identifier) => {
+            CELL: (child, identifier) => {
               const td = document.createElement('td');
               td.classList.add(`datatable-column___${identifier}`)
               // Custom identifer
@@ -117,7 +117,7 @@ if (!window.ScheduledVisitsLoaded) {
 
               const span2 = document.createElement('span');
               span2.classList.add('break-line')
-              span2.textContent = text;
+              span2.appendChild(child);
               span1.appendChild(span2);
 
               return td;
@@ -152,7 +152,11 @@ if (!window.ScheduledVisitsLoaded) {
               // Combine caregiver preference with vital tags
               const filteredTags = [caregiverPreference, ...vitalTags];
 
-              return filteredTags.join(', ');
+              const container = document.createElement('span');
+              container.textContent = filteredTags.join(', ');
+              container.title = tagNames.join(', ');
+
+              return container;
             },
           },
           'Client City': {
@@ -168,17 +172,36 @@ if (!window.ScheduledVisitsLoaded) {
                   }
                 }
               }
+
+              const container = document.createElement('span');
+              container.textContent = content;
               
-              return content;
+              return container;
             },
           },
           'Client Careplan': {
             identifier: 'client-careplan',
             getContent: (clientData) => {
               const CLI = clientData.careplan.diagnoses.find(diagnose => diagnose.name.toLowerCase().includes('client centered information'))?.description || 'Error';
-              const container = document.createElement('span');
-              container.title = CLI;
+
+              const container = document.createElement('div');
+              container.style.fontSize = 'large';
+              container.style.textAlign = 'center';
               container.textContent = '📋';
+
+              const tooltip = document.createElement('span');
+              tooltip.style.display = 'none';
+              tooltip.style.position = 'absolute';
+              tooltip.style.backgroundColor = '#333';
+              tooltip.style.padding = '1em';
+              tooltip.style.zIndex = '1000';
+              tooltip.textContent = CLI;
+
+              container.appendChild(tooltip);
+
+              container.addEventListener('mouseenter', () => tooltip.style.display = 'block');
+              container.addEventListener('mouseleave', () => tooltip.style.display = 'none');
+              
               return container;
             },
           },
@@ -194,6 +217,7 @@ if (!window.ScheduledVisitsLoaded) {
         /** TESTING COLUMN OPTIONS */
         this.COLUMNS = {
           NEW: {
+            'Client Careplan': true,
             'Client City': true,
             'Client Tags': true,
             'Visit ID': true,
@@ -213,6 +237,7 @@ if (!window.ScheduledVisitsLoaded) {
             'Visit Status': false,
           },
           LEGACY: {
+            'Client Careplan': true,
             'Client City': true,
             'Client Tags': true,
             'Visit ID': true,

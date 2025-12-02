@@ -129,8 +129,8 @@ if (!window.ScheduledVisitsLoaded) {
         this.CUSTOM_COLUMNS = {
           'Client Tags': {
             identifier: 'client-tags',
-            getContent: (client) => {
-              const tags = client.tags_v2 || client.tags;
+            getContent: (clientData) => {
+              const tags = clientData.client.tags_v2 || clientData.client.tags;
               if (!tags?.length) {
                 return 'No CG Preference';
               }
@@ -157,13 +157,13 @@ if (!window.ScheduledVisitsLoaded) {
           },
           'Client City': {
             identifier: 'client-city',
-            getContent: (client) => {
-              let content = client.demographics.city || '<span style="color:#ccc">--</span>';
+            getContent: (clientData) => {
+              let content = clientData.client.demographics.city || '<span style="color:#ccc">--</span>';
 
               if (String(content).toLowerCase().includes('portland')) {
                 const cardinals = [' N ', ' NE ', ' E ', ' SE ', ' S ', ' SW ', ' W ', ' NW '];
                 for (const cardinal of cardinals) {
-                  if (client.demographics.address.includes(cardinal)) {
+                  if (clientData.client.demographics.address.includes(cardinal)) {
                     content = cardinal + ' ' + content;
                   }
                 }
@@ -172,11 +172,20 @@ if (!window.ScheduledVisitsLoaded) {
               return content;
             },
           },
+          'Client Careplan': {
+            identifier: 'client-careplan',
+            getContent: (clientData) => {
+              const CLI = clientData.careplan.diagnoses.find(diagnose => diagnose.name.toLowerCase() === 'client centered information')?.description || 'Error';
+              return CLI;
+            },
+          },
         };
 
         this.ENDPOINTS = {
           SCHEDULED_VISITS: '/api/v1/scheduler/scheduled_visits',
           GET_CLIENT_BY_ID: (clientId) => `/ext/api/v2/patients/clients/${clientId}`,
+          GET_ACTIVE_CAREPLAN: (clientId) => `/ext/api/v2/clinical/client/${clientId}/careplans?status=active`,
+          GET_ACTIVE_CAREPLAN_DETAILS: (careplanId) => `/api/v1/clinical/careplan/${careplanId}`
         };
 
         /** TESTING COLUMN OPTIONS */
@@ -321,19 +330,50 @@ if (!window.ScheduledVisitsLoaded) {
 
       // Function to fetch client tags and city for a specific client
       async fetchClientInfo(visitId, clientId) {
+        this.clientMap[clientId] = {};
+
+        // Fetch client profile info
         try {
           const response = await originalFetch(this.ENDPOINTS.GET_CLIENT_BY_ID(clientId));
 
           if (response.ok) {
             const clientData = await response.json();
-
-            this.clientMap[clientId] = clientData;
-            this.visitMap[visitId] = clientData;
-
-            this.updateRow(visitId);
+            this.clientMap[clientId].client = clientData;
           }
         } catch (err) {
           console.error('[Vibe Extension - Visits] Error fetching client data:', err);
+        }
+
+        // Fetch client's active careplan
+        try {
+          const response = await originalFetch(this.ENDPOINTS.GET_ACTIVE_CAREPLAN(clientId));
+
+          if (response.ok) {
+            const careplans = await response.json();
+            if (!careplans.count) return;
+            const careplan = careplans.items[0];
+
+            // Fetch details of active careplan
+            try {
+              const response = await originalFetch(this.ENDPOINTS.GET_ACTIVE_CAREPLAN_DETAILS(careplan.id));
+
+              if (response.ok) {
+                const careplanDetails = await response.json();
+
+                this.clientMap[clientId].careplan = careplanDetails;
+                
+                // Update dataMap
+                this.visitMap[visitId] = this.clientMap[clientId];
+
+                // Update row
+                this.updateRow(visitId);
+              }
+            } catch (err) {
+              console.error('[Vibe Extension - Visits] Error fetching careplan details:', err);
+            }
+          }
+        } catch (err) {
+          console.error('[Vibe Extension - Visits] Error fetching careplans:', err);
         }
       }
 

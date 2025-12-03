@@ -156,7 +156,7 @@ if (!window.ScheduledVisitsLoaded) {
               container.classList.add('p-button');
               container.style.overflow = 'visible';
               container.style.position = 'static';
-              container.textContent = filteredTags;
+              container.textContent = filteredTags.join(', ');
 
               const tooltip = document.createElement('span');
               tooltip.style.display = 'none';

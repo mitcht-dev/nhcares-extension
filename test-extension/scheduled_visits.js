@@ -505,6 +505,26 @@ if (!window.ScheduledVisitsLoaded) {
         }, 2000);
       }
 
+      initializeTableObserver(table) {
+        if (this.tableObserver) this.tableObserver.disconnect();
+
+        const tbody = table.querySelector(this.activeSelectors.BODY);
+        if (!tbody) return;
+
+        this.tableObserver = new MutationObserver(mutations => {
+          let shouldRender = false;
+          mutations.forEach(m => {
+            if (m.addedNodes.length) shouldRender = true;
+          });
+          if (shouldRender) {
+            this.insertHeaders();
+            this.updateAllRows();
+          }
+        });
+
+        this.tableObserver.observe(tbody, { childList: true, subtree: false });
+      }
+
       insertHeaders() {
         const theadRow = document.querySelector(`${this.activeSelectors.TH_ROW} > ${this.activeSelectors.ROW}`);
         if (!theadRow) return;
@@ -524,26 +544,6 @@ if (!window.ScheduledVisitsLoaded) {
             headers[index].style.display = 'none';
           }
         });
-      }
-
-      initializeTableObserver(table) {
-        if (this.tableObserver) this.tableObserver.disconnect();
-
-        const tbody = table.querySelector(this.activeSelectors.BODY);
-        if (!tbody) return;
-
-        this.tableObserver = new MutationObserver(mutations => {
-          let shouldRender = false;
-          mutations.forEach(m => {
-            if (m.addedNodes.length) shouldRender = true;
-          });
-          if (shouldRender) {
-            this.insertHeaders();
-            this.updateAllRows();
-          }
-        });
-
-        this.tableObserver.observe(tbody, { childList: true, subtree: false });
       }
 
       updateAllRows() {

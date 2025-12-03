@@ -3,10 +3,6 @@
   "name": "New Horizons Alayacare Extension",
   "version": "0.0.0.2",
   "description": "adds additional functionality for NH workflows",
-
-  "icons": {
-    "128": "icons/nha_icon128.png"
-  },
   
   
    "content_scripts": [ {
